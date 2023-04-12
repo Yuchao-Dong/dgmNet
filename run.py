@@ -7,20 +7,20 @@ from dgm import DGMnet, DGMloss
 from train import train
 
 # define model
-model = DGMnet(d=1, M=20, num_highway_layers=3)
+model = DGMnet(d=1, M=50, num_highway_layers=3)
 criterion = DGMloss(u0_preset="square")
 
 # train model
 training_loss = train(
     model,
     criterion,
-    num_epochs=5000,
-    batch_size=64,
+    num_epochs=1000,
+    batch_size=1024,
     lr=0.01,
-    num_lr_steps=5,
+    num_lr_steps=2,
     gamma=0.5,
     save_path="models/advection1d.pt",
-    print_every=500,
+    print_every=100,
 )
 
 # plot error
