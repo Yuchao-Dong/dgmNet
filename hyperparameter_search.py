@@ -6,27 +6,24 @@ from dgm import DGMnet, DGMloss
 from train import train
 
 # define parameter space
-num_iterations = 5
+num_iterations = 10
 hyperparameters = {
-    "M": [10, 20, 30, 50],
+    "M": [10, 20, 30, 40, 50],
     "num_highway_layers": [0, 1, 2, 3],
-    "num_batches": [1, 2, 4, 6, 8],
+    "num_epochs": [5000, 10000],
     "lr": [0.02, 0.01, 0.001],
-    "num_lr_steps": [0, 1, 2, 4],
+    "num_lr_steps": [0, 1, 2, 3],
     "gamma": [0.5, 0.25, 0.1],
 }
 
 
-def reward(loss_list):
-    last_loss_reward = 1 / (1 + loss_list[-1])
-    np_loss = np.array(training_loss)[100:]
-    mean_loss_reward = 1 / (1 + np.mean(np_loss))
-    smoothness_reward = 1 / (1 + np.mean(np.abs(np_loss[1:] - np_loss[:1])))
-    score = last_loss_reward + mean_loss_reward
+def find_score(loss_list):
+    np_loss = np.array(training_loss)
+    score = np_loss[-1] + np.mean(np_loss[-20:])
     return score
 
 
-best_score = 0
+best_score = float("inf")
 best_hyperparameters = None
 parameters = {}
 for i in range(num_iterations):
@@ -48,18 +45,17 @@ for i in range(num_iterations):
         model,
         criterion,
         print_every=False,
-        num_epochs=200,
-        batch_size=128,
-        num_batches=parameters["num_batches"],
+        batch_size=64,
+        num_epochs=parameters["num_epochs"],
         lr=parameters["lr"],
         num_lr_steps=parameters["num_lr_steps"],
         gamma=parameters["gamma"],
     )
 
     # evaluate model
-    score = reward(training_loss)
+    score = find_score(training_loss)
     print(f"score: {score:.3f}")
-    if score > best_score:
+    if score < best_score:
         best_score = score
         best_hyperparameters = parameters
 

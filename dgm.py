@@ -126,9 +126,9 @@ class DGMloss(nn.Module):
     def forward(self, f, t, x):
         # return self.initial_condition_loss(f, x) + self.boundary_condition_loss(f, t, x)
         return (
-            self.boundary_condition_loss(f, t, x)
-            + self.initial_condition_loss(f, x)
-            + self.differential_loss(f, t, x)
+            self.norm(self.boundary_condition_loss(f, t, x))
+            + self.norm(self.initial_condition_loss(f, x))
+            + self.norm(self.differential_loss(f, t, x))
         )
 
     def boundary_condition_loss(self, f, t, x):
@@ -139,7 +139,7 @@ class DGMloss(nn.Module):
         n = len(t)
         f_left = f(t, torch.zeros(n, 1))
         f_right = f(t, torch.ones(n, 1))
-        return self.norm(f_right - f_left)
+        return f_right - f_left
 
     def initial_condition_loss(self, f, x):
         """
@@ -147,7 +147,7 @@ class DGMloss(nn.Module):
         f(0, x) - u_0(x)
         """
         f0 = f(torch.zeros(len(x), 1), x)
-        return self.norm(f0 - self.u0(x))
+        return f0 - self.u0(x)
 
     def u0(self, x):
         return u0_presets(x, preset=self.u0_preset)
@@ -160,4 +160,4 @@ class DGMloss(nn.Module):
         fx = f(t, x)
         dfdt = self.differentiate(fx, t)
         dfdx = self.differentiate(fx, x)
-        return self.norm(dfdt + 1 * dfdx)
+        return dfdt + 1 * dfdx

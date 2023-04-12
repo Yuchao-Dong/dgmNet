@@ -14,12 +14,13 @@ criterion = DGMloss(u0_preset="square")
 training_loss = train(
     model,
     criterion,
-    num_epochs=500,
+    num_epochs=5000,
     batch_size=64,
-    num_batches=8,
     lr=0.01,
-    num_lr_steps=2,
-    gamma=0.1,
+    num_lr_steps=5,
+    gamma=0.5,
+    save_path="models/advection1d.pt",
+    print_every=500,
 )
 
 # plot error
