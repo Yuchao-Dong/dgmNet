@@ -70,38 +70,3 @@ def u0_presets(x, preset="square"):
             u0,
         )
         return u0
-
-
-def importance_resample(t, x, importance=None, noise_std=None, shuffle_probability=0):
-    """
-    args:
-        t, x        torch tensor data, x of dimension d
-        importance  torch tensor importance values associated with each (t, x)
-    returns:
-        new torch tensor t, x sample based on the importance of the given values
-        as well as added noise
-    """
-    # if no importance is provided, return a random sample
-    shuffle = np.random.rand() <= shuffle_probability if shuffle_probability else False
-    if importance is None or shuffle:
-        t_sample = torch.rand(size=t.shape).requires_grad_(True)
-        x_sample = torch.rand(size=x.shape).requires_grad_(True)
-        return t_sample, x_sample
-    # convert data to numpy
-    n = len(t)
-    d = x.shape[1]
-    t_np, x_np = t.clone().detach().numpy(), x.clone().detach().numpy()
-    importance_np = importance.clone().detach().numpy()
-    # normalize
-    total_importance = np.sum(importance_np)
-    importance_np /= total_importance
-    # add noise depending on the importance
-    noise_std = 1 / np.sqrt(n) * np.exp(-((n * importance_np) ** 2))
-    t_noise = np.random.normal(loc=0, scale=noise_std, size=(n, 1))
-    x_noise = np.random.normal(loc=0, scale=noise_std, size=(n, d))
-    t_np += t_noise
-    x_np += x_noise
-    # convert to torch tensor
-    t_resample = torch.Tensor(t_np).requires_grad_(True)
-    x_resample = torch.Tensor(x_np).requires_grad_(True)
-    return t_resample, x_resample

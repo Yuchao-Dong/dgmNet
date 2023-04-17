@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-from util import importance_resample
 
 
 def train(
@@ -30,22 +29,17 @@ def train(
         np.tile(np.linspace(0, 1, 32), 32).reshape(-1, 1)
     ).requires_grad_(True)
 
-    # initial uniformly random sample
-    t_batch = torch.rand((batch_size, 1), requires_grad=True)  # solving time set to 1
-    x_batch = torch.rand((batch_size, 1), requires_grad=True)  # box size set to 1
-    diffloss = None
-
     # train the model
     training_loss = []
     for epoch in range(num_epochs):
-        # new random training data every epoch
-        t_batch, x_batch = importance_resample(
-            t=t_batch, x=x_batch, importance=diffloss, shuffle_probability=0.05
-        )
+        # uniform random sample
+        t_batch = torch.rand(
+            (batch_size, 1), requires_grad=True
+        )  # solving time set to 1
+        x_batch = torch.rand((batch_size, 1), requires_grad=True)  # box size set to 1
 
         # Forward pass
         loss = criterion(f=model, t=t_batch, x=x_batch)
-        diffloss = torch.abs(criterion.residual_loss(model, t_batch, x_batch))
 
         # Backward pass and optimization
         optimizer.zero_grad()
@@ -67,11 +61,6 @@ def train(
                 print(
                     f"Epoch [{epoch+1}/{num_epochs}], Loss: {uniform_loss.item():.4f}"
                 )
-                # import matplotlib.pyplot as plt
-                # plt.plot(x_batch.detach().numpy(), t_batch.detach().numpy(), '.')
-                # plt.xlabel('x')
-                # plt.ylabel('t')
-                # plt.show()
 
     # save model
     if save_path:
