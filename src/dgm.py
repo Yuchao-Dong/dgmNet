@@ -1,6 +1,5 @@
 import torch.nn as nn
 import torch
-from util import u0_presets
 
 
 class HighwayLayer(nn.Module):
@@ -73,14 +72,14 @@ class HighwayLayer(nn.Module):
 
 class DGMnet(nn.Module):
     def __init__(
-        self, d: int = 1, M: int = 50, num_highway_layers: int = 1, activation="relu"
+        self, d: int = 1, M: int = 50, L: int = 1, activation="relu"
     ):
         """
         args:
-            d:   number of spatial input dimensions
-            M:   nodes per layer
-            number of layers
-            activation function type
+            d:  number of spatial input dimensions
+            M:  nodes per layer
+            L:  number of lstm layers 
+            activation: relu or tanh
         returns:
             PDE solving model
         """
@@ -96,7 +95,7 @@ class DGMnet(nn.Module):
         nn.init.xavier_normal_(self.final_layer.weight)
         # highway layers in between
         self.highway_layers = nn.ModuleList()
-        for _ in range(num_highway_layers):
+        for _ in range(L):
             self.highway_layers.append(
                 HighwayLayer(input_size=d + 1, output_size=M, sigma=self.sigma)
             )
