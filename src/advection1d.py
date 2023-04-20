@@ -1,7 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 from dgm import DGMnet
-from util import u0Presets, random_sample, regular_sample
+from util import l2norm, u0Presets, random_sample
 
 # define model
 model = DGMnet(d = 1, M = 32, L = 2, activation='relu')
@@ -15,9 +15,8 @@ print_every = 10
 batch_size = (128, 128, 128)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.1)
-
-def l2norm(x):
-    return torch.sqrt(torch.sum(torch.square(x)))
+# admin
+model_path = '../models/advection1d.pt'
 
 # train the model
 training_loss = []
@@ -57,19 +56,13 @@ for epoch in range(num_epochs):
         if (epoch + 1) % print_every == 0:
             print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
 
+# save model
+if model_path:
+    torch.save(model, model_path)
+
 # plot loss
 plt.semilogy(training_loss)
 plt.xlabel('iteration')
 plt.ylabel('loss')
-plt.show()
-
-# plot attempted solution
-t, x = regular_sample(n = 101, d=1, requires_grad = False)
-fx = model(t, x).detach()
-plt.plot(x[:101].numpy(), u0(x[:101]).numpy(), label='u0')
-plt.plot(x[:101].numpy(), fx[:101].numpy(), label='t=0')
-plt.plot(x[t == 0.5].numpy(), fx[t == 0.5].numpy(), label='t=0.5')
-plt.plot(x[-101:].numpy(), fx[-101:].numpy(), label='t=1')
-plt.legend()
 plt.show()
 
