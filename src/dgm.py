@@ -71,14 +71,12 @@ class HighwayLayer(nn.Module):
 
 
 class DGMnet(nn.Module):
-    def __init__(
-        self, d: int = 1, M: int = 50, L: int = 1, activation="relu"
-    ):
+    def __init__(self, d: int = 1, M: int = 50, L: int = 1, activation="relu"):
         """
         args:
             d:  number of spatial input dimensions
             M:  nodes per layer
-            L:  number of lstm layers 
+            L:  number of lstm layers
             activation: relu or tanh
         returns:
             PDE solving model
