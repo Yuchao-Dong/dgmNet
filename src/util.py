@@ -92,6 +92,22 @@ def regular_sample(
     return t, x
 
 
+def slotted_disk(x: torch.Tensor, r:float = 1, w:float = 0.3, l:float = 1.5):
+    """
+    args:
+        x   tensor of x and y values
+        r   disk radius
+        w   slot width
+        l   slot length
+    returns: slotted disk
+    """
+    hypotenuse = torch.sqrt(torch.sum(torch.square(x), dim=1))
+    disk_mask = hypotenuse < r
+    slot_mask = torch.logical_and(torch.abs(x[:, 1]) < w / 2, x[:, 0] > r - l)
+    g = torch.zeros(x.shape[0], 1)
+    g[torch.logical_and(disk_mask, torch.logical_not(slot_mask))] = 1
+    return g
+
 def square2d(x: torch.Tensor):
     """
     args: x of shape (,2)
