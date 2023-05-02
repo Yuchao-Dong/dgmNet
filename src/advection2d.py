@@ -1,3 +1,12 @@
+"""
+train a DGM model to learn constant advection in a periodic box
+here horizontal advection speed 'a' is included in the paremeter space
+model inputs:
+    t, x, y, a
+model ouputs:
+    u
+"""
+
 import torch
 import matplotlib.pyplot as plt
 from dgm import DGMnet
@@ -11,9 +20,9 @@ u0 = square2d
 b = 1  # vertical velocity
 bounds = torch.Tensor([[0, 1], [0, 1], [-1, 1]])  # x, y, and a bounds
 # hyperparameters
-num_epochs = 100
-num_iterations = 10
-print_every = 10
+num_epochs = 10
+num_iterations = 100
+print_every = 1
 nint, nb, n0 = 1024, 1024, 1024  # sample sizes in each subdomain
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.1)

@@ -1,7 +1,16 @@
+"""
+train a DGM model to learn constant advection in a periodic box
+model inputs:
+    t, x
+model ouputs:
+    u
+"""
+
 import torch
 import matplotlib.pyplot as plt
 from dgm import DGMnet
 from util import l2norm, u0Presets, random_sample
+
 
 # define model
 model = DGMnet(d=1, M=32, L=2, activation="relu")
